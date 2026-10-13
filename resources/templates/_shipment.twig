@@ -1,0 +1,110 @@
+{#
+ # Door 2 — Twig, via the `ui()` function.
+ #
+ # Every control below is a `CraftCms\Cms\Cp\Components\*` object rendered to a
+ # `craft-*` custom element. Config keys are the component's fluent setters, so
+ # a typo throws and names the whole catalog instead of being ignored.
+ #}
+
+{% if testMode %}
+  {{ ui('callout', {
+    variant: 'warning',
+    title: 'Sandbox mode'|t('acme-shipping'),
+    content: 'Rates and labels are simulated while test mode is on.'|t('acme-shipping'),
+  }) }}
+{% endif %}
+
+{% set body %}
+  {#
+   # Door 1 — raw web components.
+   #
+   # `craft-status` and `craft-badge` have no PHP wrappers (35 of the 69
+   # components don't), so the tag *is* the API. Next to them,
+   # `acme-rate-badge` is this plugin's own component, registered into the same
+   # `ui()` namespace as core's.
+   #}
+  <div class="flex items-center gap-2 mb-4">
+    <craft-status status="{{ shipment.status }}" label="{{ shipment.statusLabel }}"></craft-status>
+    <craft-badge fill="teal">{{ shipment.carrierLabel }}</craft-badge>
+    {{ ui('acme-rate-badge', {amount: rate}) }}
+  </div>
+
+  <craft-field-group>
+  {{ ui('field', {
+    label: 'Tracking number'|t('acme-shipping'),
+    instructions: 'Hand this to the customer.'|t('acme-shipping'),
+    input: ui('input-copy', {
+      id: 'tracking',
+      value: shipment.tracking,
+      monospace: true,
+    }),
+  }) }}
+
+  {{ ui('field', {
+    label: 'Recipient'|t('acme-shipping'),
+    required: true,
+    errors: errors.recipient ?? [],
+    input: ui('input', {
+      id: 'recipient',
+      name: 'recipient',
+      value: shipment.recipient,
+      maxlength: 255,
+    }),
+  }) }}
+
+  {{ ui('field', {
+    label: 'Carrier'|t('acme-shipping'),
+    errors: errors.carrier ?? [],
+    input: ui('select', {
+      id: 'carrier',
+      name: 'carrier',
+      value: shipment.carrier,
+      options: carriers,
+    }),
+  }) }}
+
+  {#
+   # There's no `ui('boolean-menu')` — `BooleanMenu` only exists as a
+   # `Ui\Controls` class, for door 5. A plain select covers it here.
+   #}
+  {{ ui('field', {
+    label: 'Signature required'|t('acme-shipping'),
+    instructions: 'Adds a fee on most carriers.'|t('acme-shipping'),
+    input: ui('select', {
+      id: 'signature',
+      name: 'signature',
+      value: shipment.signature ? '1' : '0',
+      options: [
+        {label: 'Yes'|t('app'), value: '1'},
+        {label: 'No'|t('app'), value: '0'},
+      ],
+    }),
+  }) }}
+
+  {{ ui('field', {
+    label: 'Insured'|t('acme-shipping'),
+    input: ui('lightswitch', {
+      id: 'insured',
+      name: 'insured',
+      on: shipment.insured,
+    }),
+  }) }}
+  </craft-field-group>
+
+  {#
+   # Keep every setter in the config hash. The `ui()` Twig function is marked
+   # `is_safe: html`, but chaining a setter onto the call loses that marking and
+   # Twig escapes the component's markup. `|raw` works too; the hash is tidier.
+   #}
+  {{ ui('button', {
+    icon: 'arrow-up-right-from-square',
+    label: 'View contents'|t('acme-shipping'),
+    href: shipment.entryUrl,
+  }) }}
+{% endset %}
+
+{{ ui('pane', {
+  appearance: 'raised',
+  label: 'Shipment'|t('acme-shipping'),
+  content: body,
+}) }}

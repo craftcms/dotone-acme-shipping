@@ -1,0 +1,20 @@
+{
+  "name": "acme/shipping",
+  "description": "Example plugin demonstrating Craft 6 control panel extension points",
+  "type": "craft-plugin",
+  "license": "MIT",
+  "require": {
+    "craftcms/cms": "^6.0.0-alpha.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Acme\\Shipping\\": "src/"
+    }
+  },
+  "extra": {
+    "name": "Acme Shipping",
+    "handle": "acme-shipping",
+    "developer": "Acme"
+  },
+  "minimum-stability": "dev"
+}

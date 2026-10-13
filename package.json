@@ -1,0 +1,15 @@
+{
+  "name": "acme-shipping",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.0",
+    "laravel-vite-plugin": "^1.0.0",
+    "vite": "^6.0.0",
+    "vue": "^3.5.0"
+  }
+}

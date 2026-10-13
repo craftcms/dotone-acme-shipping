@@ -1,0 +1,66 @@
+{#
+ # The backwards-compatibility story, as a working screen.
+ #
+ # This is the Craft 5 version of `_shipment.twig`, unchanged. The macro
+ # signatures are identical between versions — `forms.copytextField` renamed to
+ # `forms.copyTextField` is the only break — and the same template now emits
+ # `craft-*` components instead of the old markup and jQuery.
+ #
+ # Diff the rendered HTML against `_shipment.twig`: most controls land on the
+ # same component, but not all of them. `forms.selectField` still emits the
+ # legacy `.select` wrapper while `ui('select')` emits `<craft-select>` — the
+ # port is per-control, and the macro layer is honest about where it is.
+ #}
+
+{% import "_includes/forms" as forms %}
+
+<craft-pane appearance="raised" label="{{ 'Shipment (Craft 5 template)'|t('acme-shipping') }}">
+  {{ forms.copyTextField({
+    label: 'Tracking number'|t('acme-shipping'),
+    instructions: 'Hand this to the customer.'|t('acme-shipping'),
+    id: 'tracking',
+    value: shipment.tracking,
+  }) }}
+
+  {{ forms.textField({
+    label: 'Recipient'|t('acme-shipping'),
+    id: 'recipient',
+    name: 'recipient',
+    value: shipment.recipient,
+    required: true,
+    errors: errors.recipient ?? null,
+  }) }}
+
+  {{ forms.selectField({
+    label: 'Carrier'|t('acme-shipping'),
+    id: 'carrier',
+    name: 'carrier',
+    value: shipment.carrier,
+    options: carriers,
+    errors: errors.carrier ?? null,
+  }) }}
+
+  {{ forms.booleanMenuField({
+    label: 'Signature required'|t('acme-shipping'),
+    instructions: 'Adds a fee on most carriers.'|t('acme-shipping'),
+    id: 'signature',
+    name: 'signature',
+    value: shipment.signature ? '1' : '0',
+  }) }}
+
+  {{ forms.lightswitchField({
+    label: 'Insured'|t('acme-shipping'),
+    id: 'insured',
+    name: 'insured',
+    on: shipment.insured,
+  }) }}
+
+  {{ forms.autosuggestField({
+    label: 'Webhook URL'|t('acme-shipping'),
+    instructions: 'Where carrier events are delivered.'|t('acme-shipping'),
+    id: 'webhookUrl',
+    name: 'webhookUrl',
+    value: shipment.webhookUrl,
+    suggestEnvVars: true,
+  }) }}
+</craft-pane>
