@@ -61,11 +61,6 @@
   <LayoutSlot name="content-actions">
     <craft-button variant="primary">Sync now</craft-button>
   </LayoutSlot>
-
-  <LayoutSlot name="content-details">
-    <RateQuote :weight="2.5" />
-  </LayoutSlot>
-
   <CpContainer>
     <AdminTable
       layout="auto"

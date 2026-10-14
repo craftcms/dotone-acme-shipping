@@ -1,0 +1,39 @@
+{#
+ # Three ways to get `ui()` wrong, and what each one tells you.
+ #
+ # The calls run in the controller so the messages can be shown side by side.
+ # Add `?raw=1` to let the first one throw for real.
+ #}
+
+{{ ui('callout', {
+  variant: 'info',
+  title: 'These are deliberate'|t('acme-shipping'),
+  content: 'Every call below throws. The point is what the exception tells you.'|t('acme-shipping'),
+}) }}
+
+{% for result in results %}
+  {% set body %}
+    <pre class="code" style="margin: 0 0 var(--c-spacing-s)">{{ result.code }}</pre>
+
+    {% if result.message %}
+      {{ ui('callout', {
+        variant: 'danger',
+        hideIcon: true,
+        content: result.message,
+      }) }}
+    {% else %}
+      {{ ui('callout', {
+        variant: 'warning',
+        content: 'No exception — the API changed and this demo is stale.'|t('acme-shipping'),
+      }) }}
+    {% endif %}
+
+    <p class="light" style="margin: var(--c-spacing-s) 0 0">{{ result.note }}</p>
+  {% endset %}
+
+  {{ ui('pane', {
+    appearance: 'raised',
+    label: result.label,
+    content: body,
+  }) }}
+{% endfor %}

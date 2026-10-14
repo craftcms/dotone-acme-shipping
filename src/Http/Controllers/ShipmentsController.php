@@ -14,8 +14,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use InvalidArgumentException;
 
 use function CraftCms\Cms\t;
+use function CraftCms\Cms\ui;
 
 class ShipmentsController
 {
@@ -83,6 +85,65 @@ class ShipmentsController
                 'carriers' => $this->carriers(),
                 'errors' => $this->errors(),
             ]);
+    }
+
+    /**
+     * Deliberate failures. The registry's exception lists every registered
+     * name, so a typo answers "what can I use?" on its own.
+     *
+     * `?raw=1` rethrows instead of catching, for showing the real error page.
+     */
+    public function catalog(Request $request): CpScreenResponse
+    {
+        $this->requirePermission(self::PERMISSION);
+
+        $cases = [
+            [
+                'label' => t('A name that is not registered'),
+                'code' => "{{ ui('status', {status: 'live'}) }}",
+                'note' => t('The message is the catalog. Note the last entry: this plugin registers acme-rate-badge in its boot(), so it is listed alongside core\'s.'),
+                'run' => fn () => ui('status', ['status' => 'live']),
+            ],
+            [
+                'label' => t('A config key that is not a setter'),
+                'code' => "{{ ui('field', {labl: 'Tracking number'}) }}",
+                'note' => t('Names the class and the key, but not the available setters. A macro would have ignored this silently.'),
+                'run' => fn () => ui('field', ['labl' => 'Tracking number']),
+            ],
+            [
+                'label' => t('A getter, passed as if it were a setter'),
+                'code' => "{{ ui('field', {getId: 'tracking'}) }}",
+                'note' => t('Rejected on purpose. PHP ignores extra arguments, so a getter would have swallowed the value and rendered nothing.'),
+                'run' => fn () => ui('field', ['getId' => 'tracking']),
+            ],
+        ];
+
+        $results = [];
+
+        foreach ($cases as $case) {
+            try {
+                ($case['run'])();
+                $message = null;
+            } catch (InvalidArgumentException $e) {
+                if ($request->boolean('raw')) {
+                    throw $e;
+                }
+
+                $message = $e->getMessage();
+            }
+
+            $results[] = [
+                'label' => $case['label'],
+                'code' => $case['code'],
+                'note' => $case['note'],
+                'message' => $message,
+            ];
+        }
+
+        return new CpScreenResponse()
+            ->title(t('What happens when you get it wrong'))
+            ->addCrumb(t('Shipments'), 'acme-shipping')
+            ->contentTemplate('acme-shipping/_catalog', ['results' => $results]);
     }
 
     public function save(Request $request): RedirectResponse

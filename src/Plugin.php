@@ -8,7 +8,10 @@ use Acme\Shipping\Cp\Components\RateBadge;
 use Acme\Shipping\Listeners\AddTrackingMetadata;
 use Acme\Shipping\Models\Settings;
 use CraftCms\Cms\Cp\Components\ComponentRegistry;
+use CraftCms\Cms\Cp\Data\NavItem;
+use CraftCms\Cms\Cp\SelectOptions;
 use CraftCms\Cms\Element\Events\ElementMetadataResolving;
+use CraftCms\Cms\Form\Controls\Combobox;
 use CraftCms\Cms\Plugin\Plugin as BasePlugin;
 use CraftCms\Cms\Plugin\PluginSettings;
 use CraftCms\Cms\Ui\Controls\BooleanMenu;
@@ -40,6 +43,29 @@ class Plugin extends BasePlugin
         'input' => ['resources/js/cp.ts'],
     ];
 
+    public function getCpNavItem(): NavItem|array|null
+    {
+        $item = parent::getCpNavItem();
+
+        if (!$item instanceof NavItem) {
+            return $item;
+        }
+
+        $item->add(
+            new NavItem()
+                ->label(t('Shipments', category: 'acme-shipping'))
+                ->url('acme-shipping')
+        );
+
+        $item->add(
+            new NavItem()
+                ->label(t('Catalog', category: 'acme-shipping'))
+                ->url('acme-shipping/catalog')
+        );
+
+        return $item;
+    }
+
     public function boot(): void
     {
         // Registering under a prefixed name keeps it from colliding with core's
@@ -50,7 +76,7 @@ class Plugin extends BasePlugin
     #[Override]
     protected static function createSettings(): ?PluginSettings
     {
-        return new Settings();
+        return new Settings;
     }
 
     /**
@@ -63,12 +89,13 @@ class Plugin extends BasePlugin
     public function settingsUi(UiContext $context = new UiContext): ?Ui
     {
         $settings = $this->getSettings();
-
         return Ui::make([
             UiField::make(t('API key'))
                 ->instructions(t('From your Acme dashboard.'))
+                ->tip(t('Type `$` to choose an environment variable.'))
                 ->control(
                     Text::make('apiKey')
+                        ->textExpanderTriggers(SelectOptions::getEnvTextExpanderTriggers())
                         ->value($settings->apiKey)
                         ->placeholder('acme_live_…')
                 ),
