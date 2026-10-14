@@ -1,0 +1,97 @@
+{#
+ # Each example renders three ways: the code you write, the live component, and
+ # the markup it produced. The live render and the markup come from the same
+ # object, so they cannot disagree.
+ #}
+
+{{ ui('callout', {
+  variant: 'info',
+  title: 'Nothing on this page asked for accessibility'|t('acme-shipping'),
+  content: 'Every attribute in the markup panes was added by the component.'|t('acme-shipping'),
+}) }}
+
+{% for example in examples %}
+  {% set body %}
+    <h3 class="acme-step">{{ 'You write'|t('acme-shipping') }}</h3>
+    <pre class="acme-code">{{ example.code }}</pre>
+
+    <h3 class="acme-step">{{ 'You get'|t('acme-shipping') }}</h3>
+    <div class="acme-render">
+      {{ example.component.toHtml|raw }}
+      {% if example.extraHtml %}
+        {{ example.extra.toHtml|raw }}
+      {% endif %}
+    </div>
+
+    <h3 class="acme-step">{{ 'What it rendered'|t('acme-shipping') }}</h3>
+    <pre class="acme-code">{{ example.html }}</pre>
+    {% if example.extraHtml %}
+      <pre class="acme-code">{{ example.extraHtml }}</pre>
+    {% endif %}
+
+    <h3 class="acme-step">{{ 'Decided for you'|t('acme-shipping') }}</h3>
+    <ul class="acme-list">
+      {% for point in example.gave %}
+        <li>{{ point|cpmd }}</li>
+      {% endfor %}
+    </ul>
+  {% endset %}
+
+  {{ ui('pane', {
+    appearance: 'raised',
+    label: example.title,
+    content: body,
+  }) }}
+{% endfor %}
+
+<style>
+  .acme-step {
+    margin: var(--c-spacing-lg) 0 var(--c-spacing-xs);
+    font-size: var(--c-text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--c-text-quiet);
+  }
+
+  .acme-step:first-child {
+    margin-top: 0;
+  }
+
+  .acme-code {
+    margin: 0;
+    padding: var(--c-spacing-md);
+    background: var(--c-surface-sunken);
+    border-radius: var(--c-radius-md);
+    font-family: var(--c-font-mono);
+    font-size: var(--c-text-xs);
+    line-height: 1.55;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .acme-code + .acme-code {
+    margin-top: var(--c-spacing-sm);
+  }
+
+  /* A plain surface behind the live render, so a screenshot has an edge. */
+  .acme-render {
+    display: grid;
+    gap: var(--c-spacing-md);
+    padding: var(--c-spacing-lg);
+    background: var(--c-surface-default);
+    border: 1px dashed var(--c-color-neutral-border-quiet);
+    border-radius: var(--c-radius-md);
+  }
+
+  .acme-list {
+    margin: 0;
+    padding-inline-start: var(--c-spacing-lg);
+    font-size: var(--c-text-sm);
+    color: var(--c-text-quiet);
+  }
+
+  /* `cpmd` wraps each item in a paragraph; do not pay for it twice. */
+  .acme-list p {
+    margin: 0;
+  }
+</style>

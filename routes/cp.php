@@ -10,6 +10,7 @@ Route::prefix('acme-shipping')->group(function () {
 
     // Ahead of the `{id}` route, which would otherwise swallow it.
     Route::get('catalog', [ShipmentsController::class, 'catalog'])->name('acme.shipments.catalog');
+    Route::get('decisions', [ShipmentsController::class, 'decisions'])->name('acme.shipments.decisions');
 
     // One record, three screens — one per rendering approach.
     Route::get('{id}', [ShipmentsController::class, 'edit'])->name('acme.shipments.edit');
