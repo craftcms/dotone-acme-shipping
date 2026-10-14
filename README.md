@@ -52,6 +52,19 @@ Laravel renders rather than escapes them.
 **`src/Listeners/AddTrackingMetadata.php`** — door 4. A listener has nowhere to
 put a template, so components are built and `->toHtml()`'d directly.
 
+## When you get it wrong
+
+`acme-shipping/catalog` renders three deliberate `ui()` mistakes and what each
+one throws. The first is the useful one: an unregistered name produces a message
+listing every registered component, including this plugin's own
+`acme-rate-badge`, so a typo answers "what can I use?" by itself.
+
+The other two show the limits of that. An unknown config key names the class and
+the key but not the available setters, and a getter passed as a setter is
+rejected rather than silently swallowing the value.
+
+Add `?raw=1` to let the first one throw for real instead of being caught.
+
 ## Backwards compatibility
 
 `resources/templates/_shipment-legacy.twig` is the Craft 5 version of the
@@ -80,6 +93,7 @@ problem, because `e()` honours `Htmlable`.
 | `acme-shipping/{id}` | Twig + `ui()` |
 | `acme-shipping/{id}/rate` | Blade + `ui()` |
 | `acme-shipping/{id}/legacy` | Craft 5 macros, via the shim |
+| `acme-shipping/catalog` | Deliberate `ui()` failures |
 | Settings → Acme Shipping | Ui/Node API |
 
 Plus the "Tracking number" and "Quoted rate" rows on any entry's metadata list,
